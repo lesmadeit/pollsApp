@@ -7,16 +7,27 @@ from .models import Choice, Question
 
 
 
-def IndexView(generic.ListView):
+class IndexView(generic.ListView):
     template_name = 'pollster/index.html'
+    context_object_name = 'latest_question_list'
 
-def detail(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
-    return render(request, 'pollster/detail.html', {'question':question})
+    def get_queryset(self):
+        # Return the last five published questions
+        return Question.objects.order_by('-pub_date')[:5]
 
-def results(request, question_id):
-    question = get_object_or_404(Question, pk=question_id)
-    return render(request, 'pollster/results.html', {'question': question})
+
+
+class DetailView(generic.DetailView):
+    model = Question
+    template_name = 'pollster/detail.html'
+
+
+
+class ResultsView(generic.DetailView):
+    model = Question
+    template_name = 'pollster/results.html'
+
+
 
 def vote(request, question_id):
     question = get_object_or_404(Question, pk=question_id)
